@@ -16,7 +16,14 @@ for b in boundaries:
 
 # Generate verilog code for assignments
 
+'''
 for i in xrange(257):
    print "assign ascending[" + str(i) + "] = " + str(ascending[i]) + ";" 
 for i in xrange(257):
    print "assign descending[" + str(i) + "] = " + str(descending[i]) + ";" 
+'''
+
+for i in xrange(256):
+   print "  8'd" + str(i) + ": ascending <= " + str(ascending[i]) + ";" 
+for i in xrange(256):
+   print "  8'd" + str(i) + ": descending <= " + str(descending[i]) + ";" 

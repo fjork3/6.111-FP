@@ -50,11 +50,10 @@ module logic(
 	 output reg DTW_train7,//GO
 	 output reg DTW_train8,//STOP
 	 output reg DTW_train9,//NOISE no clear word?
-    output [3:1] command
+    output reg [3:0] command
     );
 
 	
-	reg command_reg;
 	wire all_done;
 	wire [26:0] min12,min34,min56,min78;
 	wire [3:0] minstate12, minstate34, minstate56, minstate78, min;
@@ -81,25 +80,27 @@ module logic(
 	assign min = (min_next1 < min_next2)? min_nextstate1: min_nextstate2;
 	
 	//is true only once all 9 DTW engines are complete
-	assign all_done = (DWT_done1&DTW_done2&DTW_done3&DTW_done4&DTW_done5&DTW_done6&DTW_done7&DTW_done8&DTW_done9);
+	assign all_done = (DTW_done1 & DTW_done2 & DTW_done3 
+	                  & DTW_done4 & DTW_done5 & DTW_done6 
+	                  & DTW_done7 & DTW_done8 & DTW_done9);
 	
 	
 	always @(posedge clock) begin
-		if(reset) begin //On reset clear all the train switches
-		command_reg<= 0;
-		DTW_train1 <= 0;
-		DTW_train2 <= 0;
-		DTW_train3 <= 0;
-		DTW_train4 <= 0;
-		DTW_train5 <= 0;
-		DTW_train6 <= 0;
-		DTW_train7 <= 0;
-		DTW_train8 <= 0;
-		DTW_train9 <= 0;
+		if(reset) begin // On reset clear all the train switches
+		   command<= 0;
+		   DTW_train1 <= 0;
+		   DTW_train2 <= 0;
+		   DTW_train3 <= 0;
+		   DTW_train4 <= 0;
+		   DTW_train5 <= 0;
+		   DTW_train6 <= 0;
+		   DTW_train7 <= 0;
+		   DTW_train8 <= 0;
+		   DTW_train9 <= 0;
 		end
 		else begin
-			if(training_enable) begin//if trainig switch is one train the corresponding DTW only
-				command_reg <= 0;//command is nothing
+			if(training_enable) begin//if training switch is on train the corresponding DTW only
+				command <= 0;//command is nothing
 				case(training_select)
 					4'b0000: begin
 						DTW_train1 <= 0;
@@ -212,26 +213,27 @@ module logic(
 						DTW_train9 <= 0;
 						end
 					endcase
-				end
+				end // if
 			else if(all_done) begin
 				if(min_value < DTW_score9) begin //only use value if better score than plain noise
-					case(min) begin //MY LIST OF command values, change if you think neccesary
-					4'd1: command_reg <= 4'b0100;//NONE
-					4'd2: command_reg <= 4'b0101;//RED
-					4'd3: command_reg <= 4'b0110;//BLACK
-					4'd4: command_reg <= 4'b0111;//BLUE
-					4'd5: command_reg <= 4'b1000;//LEFT
-					4'd6: command_reg <= 4'b1001;//RIGHT
-					4'd7: command_reg <= 4'b1010;//GO
-					4'd8: command_reg <= 4'b1011;//STOP
-					default: command_reg <= 4'b0000; //NO COMMAND
-				endcase
-				end
-				else command_reg <= 4'b0000;
-			end
-		else command_reg <= 4'b0000; //command only stays on value for one clock cycle.
-		end
-assign command = command_reg;
+					case(min) //MY LIST OF command values, change if you think neccesary
+					   4'd1: command <= 4'b0100;//NONE
+					   4'd2: command <= 4'b0101;//RED
+					   4'd3: command <= 4'b0110;//BLACK
+					   4'd4: command <= 4'b0111;//BLUE
+					   4'd5: command <= 4'b1000;//LEFT
+					   4'd6: command <= 4'b1001;//RIGHT
+					   4'd7: command <= 4'b1010;//GO
+					   4'd8: command <= 4'b1011;//STOP
+					   default: command <= 4'b0000; //NO COMMAND
+				   endcase
+				end // if
+				else command <= 4'b0000;
+			end // else if
+		   else command <= 4'b0000; //command only stays on value for one clock cycle.
+		end // else
+		
+   end // always
 				
 			
 
