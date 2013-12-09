@@ -347,7 +347,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 	//CONTROL LOGICs
 	wire audio_dir, override_dir,done_in;//
 	wire override;
-	debounce dir_bounce(.clk(clock_27mhz), .reset(reset), .noisy(~button1), .clean(done_in));
+	debounce dir_bounce(.clk(clock_27mhz), .reset(reset), .noisy(~button0), .clean(done_in));
 	debounce over_bounce(.clk(clock_27mhz), .reset(reset), .noisy(switch[7]), .clean(override));
 
 	wire [15:0] count, new_count;
@@ -365,7 +365,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 	//over_ride control takes a command and uses it to output a direction and value for the motor to turn
 	override_control over_control(.clock(clock_27mhz), 
 	                        .reset(reset || !button_down),
-									.command({2'b10,switch[1:0]}), .done_in(done_in),
+									.command(switch[3:0]), .done_in(done_in),
 									.dir(override_dir), .com_debug(command),
 									.val(override_val), .done(override_done));
 	
@@ -504,15 +504,15 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 
    // code to write pattern to ZBT memory
    reg [31:0] 	zbt_count;
-   always @(posedge clk) zbt_count <= reset ? 0 : zbt_count + 1;
+   always @(posedge clk) zbt_count <= power_on_reset ? 0 : zbt_count + 1;
 
    wire [18:0] 	vram_addr2 = zbt_count[0+18:0];
-   wire [35:0] 	vpat = ( switch[1] ? {4{zbt_count[3+3:3],4'b0}}
+   wire [35:0] 	vpat = ( /*switch[1]*/1 ? {4{zbt_count[3+3:3],4'b0}}
 			 : {4{zbt_count[3+4:4],4'b0}} );
 
    // mux selecting read/write to memory based on which write-enable is chosen
 
-   wire 	sw_ntsc = ~switch[7];
+   wire 	sw_ntsc = 0;//~switch[7];
 //   wire 	my_we = sw_ntsc ? (hcount[1:0]==2'd2) : blank;
    wire 	my_we = sw_ntsc ? hcount[0] : blank;
    wire [18:0] 	write_addr = sw_ntsc ? ntsc_addr : vram_addr2;
@@ -564,7 +564,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    video_filter filter(.clk(clk), 
       .rgb_in({pixel[17:12], 2'b0, pixel[11:6], 2'b0, pixel[5:0], 2'b0}),
       .rgb_out(pixel_filtered),
-      .option(switch[4:3]),
+      .option(video_option),
       .in_frame(in_frame));
 
 
