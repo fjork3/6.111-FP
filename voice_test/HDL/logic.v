@@ -26,15 +26,15 @@ module logic(
 	 input feature_done,//done signal from feature vector
     input training_enable,//training_enable switch
     input [3:0] training_select,//training select choices
-    input [24:0] DTW_score1,//scores for the 9 DTWS
-	 input [24:0] DTW_score2,
-	 input [24:0] DTW_score3,
-	 input [24:0] DTW_score4,
-	 input [24:0] DTW_score5,
-	 input [24:0] DTW_score6,
-	 input [24:0] DTW_score7,
-	 input [24:0] DTW_score8,
-	 input [24:0] DTW_score9,
+    input [25:0] DTW_score1,//scores for the 9 DTWS
+	 input [25:0] DTW_score2,
+	 input [25:0] DTW_score3,
+	 input [25:0] DTW_score4,
+	 input [25:0] DTW_score5,
+	 input [25:0] DTW_score6,
+	 input [25:0] DTW_score7,
+	 input [25:0] DTW_score8,
+	 input [25:0] DTW_score9,
     input DTW_done1, //done and start for the 9 DTWs
 	 output reg DTW_start1,
 	 input DTW_done2,
