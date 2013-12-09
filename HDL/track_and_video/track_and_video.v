@@ -133,9 +133,9 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    // Audio Input and Output
    assign beep= 1'b0;
 	
-   assign audio_reset_b = 1'b0;
-   assign ac97_synch = 1'b0;
-   assign ac97_sdata_out = 1'b0;
+   //assign audio_reset_b = 1'b0;
+   //assign ac97_synch = 1'b0;
+   //assign ac97_sdata_out = 1'b0;
     //ac97_sdata_in is an input
 
    // VGA Output
@@ -263,7 +263,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    //
    ////////////////////////////////////////////////////////////////////////////
    wire power_on_reset;
-   SRL16 reset_sr(.D(1'b0), .CLK(clock_27mhz), .Q(power_on_reset),
+   SRL16 reset_sr(.D(1'b0), .CLK(clk), .Q(power_on_reset),
             .A0(1'b1), .A1(1'b1), .A2(1'b1), .A3(1'b1));
    defparam reset_sr.INIT = 16'hFFFF;
   
@@ -305,7 +305,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
   //
   ////////////////////////////////////////////////////////////////////////////	
 	
-	/*wire readymic; //is 1 when data from lab5audio is ready
+	wire readymic; //is 1 when data from lab5audio is ready
 	wire [7:0] audio_right; //audio in from right mic
 	wire [15:0] amplitude_right; //integrated value from right mic
 	wire [17:0] temp;//temp value for debugging
@@ -335,20 +335,20 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 		if(user2[16]) begin
 			amplitude_left <= user2[15:0];//getting data from the other board and storing it in amplitude_left;
 		end
-	end*/
+	end
 		
 	
 	
 	//Logic Analyzer data
-   assign analyzer3_data = 0;//{amplitude_left};
+   assign analyzer3_data = {amplitude_left};
    assign analyzer3_clock = clock_27mhz;
 	
-	assign analyzer1_data = 0;//{amplitude_right};
-	assign analyzer1_clock = 0;//readymic;
+	assign analyzer1_data ={amplitude_right};
+	assign analyzer1_clock = readymic;
 	
 	
 	//CONTROL LOGICs
-	/*wire audio_dir, override_dir,done_in;//
+	wire audio_dir, override_dir,done_in;//
 	wire override;
 	debounce dir_bounce(.clk(clock_27mhz), .reset(reset), .noisy(~button0), .clean(done_in));
 	debounce over_bounce(.clk(clock_27mhz), .reset(reset), .noisy(switch[7]), .clean(override));
@@ -380,7 +380,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 						.override(override),
 						.motor_out(user4[0]), .override_dir(override_dir),
 						.override_val(override_val), .count(count), .new_count(new_count));
-	*/
+	
 	//DISPLAY INFORMATION
 	
 	assign led[7] = 0;//!done_in;
@@ -390,7 +390,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 	assign led[5:1] = 5'b11111;
 	
 	//16 hex dispay
-	display_16hex disp(.reset(reset), .clock_27mhz(clock_27mhz), .data_in(0),//{amplitude_right,audio_val,3'b0,audio_dir,3'b0,audio_done,override_val,command,4'b0,count}), 
+	display_16hex disp(.reset(reset), .clock_27mhz(clock_27mhz), .data_in({amplitude_right,audio_val,3'b0,audio_dir,3'b0,audio_done,override_val,command,4'b0,count}), 
 		.disp_blank(disp_blank), .disp_clock(disp_clock), .disp_rs(disp_rs), .disp_ce_b(disp_ce_b),
 		.disp_reset_b(disp_reset_b), .disp_data_out(disp_data_out));
 		
@@ -510,12 +510,12 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    always @(posedge clk) zbt_count <= reset ? 0 : zbt_count + 1;
 
    wire [18:0] 	vram_addr2 = zbt_count[0+18:0];
-   wire [35:0] 	vpat = ( /*switch[1]*/0 ? {4{zbt_count[3+3:3],4'b0}}
+   wire [35:0] 	vpat = ( switch[5] ? {4{zbt_count[3+3:3],4'b0}}
 			 : {4{zbt_count[3+4:4],4'b0}} );
 
    // mux selecting read/write to memory based on which write-enable is chosen
 
-   wire 	sw_ntsc = 0;//~switch[7];
+   wire 	sw_ntsc = 1;//~switch[7];
 //   wire 	my_we = sw_ntsc ? (hcount[1:0]==2'd2) : blank;
    wire 	my_we = sw_ntsc ? hcount[0] : blank;
    wire [18:0] 	write_addr = sw_ntsc ? ntsc_addr : vram_addr2;
@@ -577,7 +577,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    assign vga_out_red = pixel_filtered[23:16];
    assign vga_out_green = pixel_filtered[15:8];
    assign vga_out_blue = pixel_filtered[7:0];
-   assign vga_out_sync_b = 1'b1;    // not used
+   //assign vga_out_sync_b = 1'b1;    // not used
    assign vga_out_pixel_clock = ~clk;
    assign vga_out_blank_b = ~b;
    assign vga_out_hsync = hs;
