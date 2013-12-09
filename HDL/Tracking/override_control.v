@@ -19,42 +19,43 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module override_control(
-    input clock,
-    input reset,
-    input [3:0] command,
-    input done_in,
-    input ready,
-    output dir,
-    output [7:0] val,
-    output done,
-	 output[3:0] com_debug
+    input clock,//system clock
+    input reset,//system reset
+    input [3:0] command, //voice (or switches) command
+    input done_in,// command is ready for use signal
+    output dir,//output direction (0 is left, 1 is right)
+    output [7:0] val, //output value of how much to turn
+    output done,//output saying val and dir are ready
+	 output[3:0] com_debug//output of the stored command for debugging purposes;
     );
 	
-	 parameter STEPSIZE = 8'b00000010;
-	 parameter GOSIZE = 8'b00000001;
+	//PARAMETERS
+	 parameter STEPSIZE = 8'b00000010; //step size when direction is said
+	 parameter GOSIZE = 8'b00000001; //step per clock cycle when in GO mode
 	 
+	 //module registers including output registers
 	 reg [3:0] command_reg;
 	 reg dir_reg, done_reg;
 	 reg [7:0] val_reg;
 	 reg persist;
 	 
 	 always @(posedge clock)begin
-		if (reset)begin
+		if (reset)begin//on reset clear all the registers
 			dir_reg <= 0;
 			done_reg <= 0;
 			command_reg <= 0;
 			val_reg <= 0;
 			persist <= 0;
 		end
-		else begin
+		else begin//choose outputs based on the given command
 			case(command_reg)
-			4'b1000: begin //Step Left
+			4'b1000: begin //Step Right
 				dir_reg <= 0;
 				val_reg <= STEPSIZE;
 				done_reg <= 1;
 				command_reg <= 0;
 				end
-			4'b1001: begin //Step Right
+			4'b1001: begin //Step Left
 				dir_reg <= 1;
 				val_reg <= STEPSIZE;
 				done_reg <= 1;
@@ -72,7 +73,7 @@ module override_control(
 				done_reg <= 0;
 				command_reg <= 0;
 				end
-			default: begin
+			default: begin//for GO keep sending the signal otherwise stop after one clock cycle
 				if(persist) done_reg <= 1;
 				else begin
 					done_reg <= 0;
@@ -82,9 +83,10 @@ module override_control(
 			endcase
 		end
 
-		if (done_in && !reset)command_reg <= command;
+		if (done_in && !reset)command_reg <= command; //only store command when given the done_in signal
 	end
 
+//output registers assignments
 assign dir = dir_reg;
 assign val = val_reg;
 assign done = done_reg;
