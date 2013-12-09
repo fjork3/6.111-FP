@@ -6,7 +6,7 @@ Filters (from value of "option" bus):
 2 - blue tint
 3 - grayscale
 
-Takes in hcount and vcount to only display within desired box.
+in_frame input makes display black outside of video area
 
 */
 
@@ -28,11 +28,12 @@ module video_filter(clk, rgb_in, option, rgb_out, in_frame);
    assign g_in = rgb_in[15:8];
    assign b_in = rgb_in[7:0];
 
+/*
    wire [7:0] r_out, g_out, b_out;
    assign r_out = rgb_out[23:16];
    assign g_out = rgb_out[15:8];
    assign b_out = rgb_out[7:0];
-
+*/
 
    // Recalculate intensity value from RGB coefficients
    wire [7:0] intensity;
