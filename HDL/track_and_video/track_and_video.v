@@ -132,10 +132,11 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    
    // Audio Input and Output
    assign beep= 1'b0;
-  // assign audio_reset_b = 1'b0;
-   //assign ac97_synch = 1'b0;
-   //assign ac97_sdata_out = 1'b0;
-   // ac97_sdata_in is an input
+	
+   assign audio_reset_b = 1'b0;
+   assign ac97_synch = 1'b0;
+   assign ac97_sdata_out = 1'b0;
+    //ac97_sdata_in is an input
 
    // VGA Output
    //assign vga_out_red = 8'h0;
@@ -161,12 +162,12 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    
    // Video Input
    //assign tv_in_i2c_clock = 1'b0;
-   assign tv_in_fifo_read = 1'b0;
+   assign tv_in_fifo_read = 1'b1;
    assign tv_in_fifo_clock = 1'b0;
-   assign tv_in_iso = 1'b0;
+   assign tv_in_iso = 1'b1;
    //assign tv_in_reset_b = 1'b0;
-   assign tv_in_clock = 1'b0;
-   assign tv_in_i2c_data = 1'bZ;
+   assign tv_in_clock = clock_27mhz;
+   //assign tv_in_i2c_data = 1'bZ;
    // tv_in_ycrcb, tv_in_data_valid, tv_in_line_clock1, tv_in_line_clock2, 
    // tv_in_aef, tv_in_hff, and tv_in_aff are inputs
    
@@ -176,10 +177,12 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    assign ram0_adv_ld = 1'b0;
    //assign ram0_clk = 1'b0;
    //assign ram0_cen_b = 1'b1;
-   assign ram0_ce_b = 1'b1;
-   assign ram0_oe_b = 1'b1;
+   assign ram0_ce_b = 1'b0;
+   assign ram0_oe_b = 1'b0;
    //assign ram0_we_b = 1'b1;
-   assign ram0_bwe_b = 4'hF;
+   assign ram0_bwe_b = 4'h0;
+	
+	
    assign ram1_data = 36'hZ; 
    assign ram1_address = 19'h0;
    assign ram1_adv_ld = 1'b0;
@@ -266,7 +269,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
   
    // ENTER button is user reset
    wire reset,user_reset;
-   debounce db1(power_on_reset, clk, ~button_enter, user_reset);
+   debounce db1(power_on_reset, clock_27mhz, ~button_enter, user_reset);
    assign reset = user_reset | power_on_reset;
 
    ////////////////////////////////////////////////////////////////////////////
@@ -302,7 +305,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
   //
   ////////////////////////////////////////////////////////////////////////////	
 	
-	wire readymic; //is 1 when data from lab5audio is ready
+	/*wire readymic; //is 1 when data from lab5audio is ready
 	wire [7:0] audio_right; //audio in from right mic
 	wire [15:0] amplitude_right; //integrated value from right mic
 	wire [17:0] temp;//temp value for debugging
@@ -332,20 +335,20 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 		if(user2[16]) begin
 			amplitude_left <= user2[15:0];//getting data from the other board and storing it in amplitude_left;
 		end
-	end
+	end*/
 		
 	
 	
 	//Logic Analyzer data
-   assign analyzer3_data = {amplitude_left};
+   assign analyzer3_data = 0;//{amplitude_left};
    assign analyzer3_clock = clock_27mhz;
 	
-	assign analyzer1_data = {amplitude_right};
-	assign analyzer1_clock = readymic;
+	assign analyzer1_data = 0;//{amplitude_right};
+	assign analyzer1_clock = 0;//readymic;
 	
 	
 	//CONTROL LOGICs
-	wire audio_dir, override_dir,done_in;//
+	/*wire audio_dir, override_dir,done_in;//
 	wire override;
 	debounce dir_bounce(.clk(clock_27mhz), .reset(reset), .noisy(~button0), .clean(done_in));
 	debounce over_bounce(.clk(clock_27mhz), .reset(reset), .noisy(switch[7]), .clean(override));
@@ -377,17 +380,17 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 						.override(override),
 						.motor_out(user4[0]), .override_dir(override_dir),
 						.override_val(override_val), .count(count), .new_count(new_count));
-	
+	*/
 	//DISPLAY INFORMATION
 	
-	assign led[7] = !done_in;
-	assign led[6] = !override_done;
-	assign led[0] = !override;
+	assign led[7] = 0;//!done_in;
+	assign led[6] = 0;//!override_done;
+	assign led[0] = 0;//!override;
 	
 	assign led[5:1] = 5'b11111;
 	
 	//16 hex dispay
-	display_16hex disp(.reset(reset), .clock_27mhz(clock_27mhz), .data_in({amplitude_right,audio_val,3'b0,audio_dir,3'b0,audio_done,override_val,command,4'b0,count}), 
+	display_16hex disp(.reset(reset), .clock_27mhz(clock_27mhz), .data_in(0),//{amplitude_right,audio_val,3'b0,audio_dir,3'b0,audio_done,override_val,command,4'b0,count}), 
 		.disp_blank(disp_blank), .disp_clock(disp_clock), .disp_rs(disp_rs), .disp_ce_b(disp_ce_b),
 		.disp_reset_b(disp_reset_b), .disp_data_out(disp_data_out));
 		
@@ -504,10 +507,10 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 
    // code to write pattern to ZBT memory
    reg [31:0] 	zbt_count;
-   always @(posedge clk) zbt_count <= power_on_reset ? 0 : zbt_count + 1;
+   always @(posedge clk) zbt_count <= reset ? 0 : zbt_count + 1;
 
    wire [18:0] 	vram_addr2 = zbt_count[0+18:0];
-   wire [35:0] 	vpat = ( /*switch[1]*/1 ? {4{zbt_count[3+3:3],4'b0}}
+   wire [35:0] 	vpat = ( /*switch[1]*/0 ? {4{zbt_count[3+3:3],4'b0}}
 			 : {4{zbt_count[3+4:4],4'b0}} );
 
    // mux selecting read/write to memory based on which write-enable is chosen
