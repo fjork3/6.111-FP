@@ -74,7 +74,10 @@ module override_control(
 				command_reg <= 0;
 				end
 			default: begin//for GO keep sending the signal otherwise stop after one clock cycle
-				if(persist) done_reg <= 1;
+				if(persist) begin
+					done_reg <= 1;
+					val_reg <= GOSIZE; //added after checkoff, makes it so changing direction while in GO does not change speed
+					end
 				else begin
 					done_reg <= 0;
 					val_reg <= 8'b000000;
