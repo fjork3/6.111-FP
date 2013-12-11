@@ -30,7 +30,7 @@ module audio_amplitude2(
 
 	//PARAMETERS
 	parameter MULTIPLY = 1; //multiply value for right mic
-	parameter THRESHHOLD = 6500;//Threshhold for right mic
+	parameter THRESHOLD = 6500;//Threshold for right mic
 
 	reg [9:0] count;//count for data coming in
 	reg [15:0] amplitude_reg;//register for amplitude data
@@ -55,7 +55,7 @@ module audio_amplitude2(
 				done_reg <= 0;
 			end
 			else if(count == 10'd800) begin //once 800 sample have been taken multiply by MULTIPL value and take upper 16 bits
-				amplitude_reg <= MULTIPLY*((tmp_reg[17:2] > THRESHHOLD)? tmp_reg[17:2]: 0);
+				amplitude_reg <= MULTIPLY*((tmp_reg[17:2] > THRESHOLD)? tmp_reg[17:2]: 0);
 				tmp_reg <= 0;
 				count <= 0;
 				done_reg <= 1;

@@ -34,7 +34,7 @@ module audio_control(
 	reg [7:0] val_reg;
 
 	//PARAMETERS
-	parameter THRESHHOLD = 16'd8000; //threshhold difference needs to be for motor to turn
+	parameter THRESHOLD = 16'd8000; //threshold difference needs to be for motor to turn
 	parameter STEPUNIT = 8'd16; //how large a step should be taken for each unit of amplitude difference
 
 
@@ -45,14 +45,14 @@ always @ (posedge clock) begin
 		done_reg <= 0;
 	end
 	else if(intL_done) begin//when we've gotten data from the left mic
-		if(intR > THRESHHOLD + intL) begin //if the right mic is louder turn right
+		if(intR > THRESHOLD + intL) begin //if the right mic is louder turn right
 			dir_reg <= 1;
 			val_reg <= STEPUNIT*((intR-intL-THRESHHOLD)/32);
 			done_reg <= 1;
 			end
-		else if(intL > THRESHHOLD + intR) begin// if the left mic is louder turn left
+		else if(intL > THRESHOLD + intR) begin// if the left mic is louder turn left
 			dir_reg <= 0;
-			val_reg <= STEPUNIT*((intL-intR-THRESHHOLD)/32);
+			val_reg <= STEPUNIT*((intL-intR-THRESHOLD)/32);
 			done_reg <= 1;
 			end
 		else done_reg <= 0;

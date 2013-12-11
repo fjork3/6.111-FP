@@ -49,13 +49,13 @@ module override_control(
 		end
 		else begin//choose outputs based on the given command
 			case(command_reg)
-			4'b1000: begin //Step Right
+			4'b1000: begin //Step Left
 				dir_reg <= 0;
 				val_reg <= STEPSIZE;
 				done_reg <= 1;
 				command_reg <= 0;
 				end
-			4'b1001: begin //Step Left
+			4'b1001: begin //Step Right
 				dir_reg <= 1;
 				val_reg <= STEPSIZE;
 				done_reg <= 1;

@@ -263,7 +263,7 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
    //
    ////////////////////////////////////////////////////////////////////////////
    wire power_on_reset;
-   SRL16 reset_sr(.D(1'b0), .CLK(clk), .Q(power_on_reset),
+   SRL16 reset_sr(.D(1'b0), .CLK(clock_27mhz), .Q(power_on_reset),
             .A0(1'b1), .A1(1'b1), .A2(1'b1), .A3(1'b1));
    defparam reset_sr.INIT = 16'hFFFF;
   
@@ -383,9 +383,9 @@ module tracking_and_video (beep, audio_reset_b, ac97_sdata_out, ac97_sdata_in, a
 	
 	//DISPLAY INFORMATION
 	
-	assign led[7] = 0;//!done_in;
-	assign led[6] = 0;//!override_done;
-	assign led[0] = 0;//!override;
+	assign led[7] = !done_in;
+	assign led[6] = !override_done;
+	assign led[0] = !override;
 	
 	assign led[5:1] = 5'b11111;
 	
